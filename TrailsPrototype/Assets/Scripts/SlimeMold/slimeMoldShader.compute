@@ -3,40 +3,80 @@
 
 
 
-public struct particle {
-    float2 position;
-    float heading;
+struct particle {
+	float2 position;
+	float heading;
 };
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 RWTexture2D<float4> Shader;
+RWStructuredBuffer<particle> particles;
 
-float numParticles;
+float screenWidth;
+float screenHeight;
+
+
+uint numParticles;
+float sensorDistance;
+float sensorAngle;
+float moveWeight;
+float turnWeight;
+float moveSpeed;
+float turnAngle;
+float pherimoneIntensity;
+float deltaTime;
+float diffuseSpeed;
+
 
 
 
 // Hash function www.cs.ubc.ca/~rbridson/docs/schechter-sca08-turbulence.pdf
 uint hash(uint state)
 {
-    state ^= 2747636419u;
-    state *= 2654435769u;
-    state ^= state >> 16;
-    state *= 2654435769u;
-    state ^= state >> 16;
-    state *= 2654435769u;
-    return state;
+	state ^= 2747636419u;
+	state *= 2654435769u;
+	state ^= state >> 16;
+	state *= 2654435769u;
+	state ^= state >> 16;
+	state *= 2654435769u;
+	return state;
 }
 
 
-[numthreads(16,1,1)]
-void Update (uint3 id : SV_DispatchThreadID)
+[numthreads(16, 1, 1)]
+void Update(uint3 id : SV_DispatchThreadID)
 {
-    // TODO: insert actual code here!
+	if (id.x > numParticles) { return; }
 
+	//Set a current Particle to the particle that is at the index of the x id
+	particle temp = particles[id.x];
+	uint random = hash(temp.position.x * screenWidth + temp.position.y + hash(id.x));
 
+	//Create a random rotation and creating a new position forward for the particle 
+	float2 heading = float2(cos(temp.heading), sin(temp.heading));
+	float2 newPos = temp.position + heading * moveSpeed * deltaTime;
 
+	if (newPos.x < 0 || newPos.y < 0 || newPos.x >= screenWidth || newPos.y >= screenHeight) {
+		newPos.x = min(screenWidth - 0.01, max(0, newPos.x));
+		newPos.y = min(screenHeight - 0.01, max(0, newPos.y));
+		particles[id.x].heading *= -1;
+	}
 
+	particles[id.x].position = newPos;
+	Shader[int2(newPos.x, newPos.y)] = 1;
+}
 
-    Shader[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+#pragma kernel diffuse
+
+RWTexture2D<float4> diffusedShader
+
+[numthreads(8,8,1)]
+void diffuse(uint3 id : SV_DispatchThreadID) {
+	if (id.x < 0 || id.y < 0 || id.x >= screenWidth || id.y >= screenHeight) { return; }
+
+	float4 originalValue = shader[id.xy];
+	float4 diffusedValue = max(0, originalValue - diffuseSpeed * deltaTime);
+
+	diffusedShader[id.xy] = diffusedValue;
 }

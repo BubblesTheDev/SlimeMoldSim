@@ -7,11 +7,12 @@ public class slimeMoldSimulator : MonoBehaviour
     public ComputeShader shader;
 
     [Header("Particle information")]
-    public float numParticles = 100000;
+    public int numParticles = 100000;
     public float sensorDistance = 5f, sensorAngle = 30f;
     public float moveWeight = 1.5f, turnWeight = 2f;
     public float moveSpeed = 5f, turnAngle = 15f;
     public float pherimoneIntensity = 1f;
+    public particle[] particles;
 
 
     [Space, Header("GraphicInformation")]
@@ -21,39 +22,85 @@ public class slimeMoldSimulator : MonoBehaviour
     public int height = 180;
     public Color slimeColor = Color.white;
     public float decayRate = 3f;
+    public float diffuseSpeed;
     public RenderTexture texture;
+    RenderTexture diffusedTexture;
 
+    bool isParticlesFinished;
     private void Awake() {
         setupTextures();
-    }
-
-    private void Update() {
-        shader.SetTexture(0, "Shader", texture);
-        shader.Dispatch(0, width / 16, height, 1);
+        loadVariables();
+        
     }
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination) {
-        Graphics.Blit(texture, destination);
+        if (isParticlesFinished)
+        {
+            shader.Dispatch(shader.FindKernel("Update"), width, height, 1);
+
+            Graphics.Blit(texture, destination);
+        }
     }
 
     void setupTextures() {
         texture = new RenderTexture(width, height, 1);
-        texture.height = height;
-        texture.width = width;
         texture.enableRandomWrite = true;
         texture.Create();
+
+        diffusedTexture = new RenderTexture(width, height, 1);
+        diffusedTexture.enableRandomWrite = true;
+        diffusedTexture.Create();
     }
 
+    void loadVariables()
+    {
+        shader.SetTexture(shader.FindKernel("Update"), "Shader", texture);
 
-    
+        shader.SetFloat("numParticles", numParticles);
+        shader.SetFloat("sensorDistance", sensorDistance);
+        shader.SetFloat("sensorAngle", sensorAngle);
+        shader.SetFloat("moveWeight", moveWeight);
+        shader.SetFloat("turnWeight", turnWeight);
+        shader.SetFloat("moveSpeed", moveSpeed);
+        shader.SetFloat("turnAngle", turnAngle);
+        shader.SetFloat("pherimoneIntensity", pherimoneIntensity);
+        shader.SetFloat("deltaTime", Time.deltaTime);
+        shader.SetFloat("screenWidth", width);
+        shader.SetFloat("screenHeight", height);
+        shader.SetFloat("diffuseSpeed", diffuseSpeed);
+
+        createParticles();
+    }
+
+    void createParticles()
+    {
+        particles = new particle[numParticles];
+        for (int i = 0; i < numParticles; i++)
+        {
+            particle temp = new particle();
+            float angle = i * Mathf.PI * 2f / numParticles;
+            temp.position = new Vector2(Mathf.Cos(angle) * 5 + width / 2, Mathf.Sin(angle) * 5 + height / 2);
+            temp.headingAngle = Random.Range(0, 360);
+            particles[i] = temp;
+        }
+
+        int vector2Size = sizeof(float) * 2;
+        int angleSize = sizeof(float);
+        int totalSize = vector2Size + angleSize;
+
+        ComputeBuffer particlesBuffer = new ComputeBuffer(particles.Length, totalSize);
+        particlesBuffer.SetData(particles);
+
+        shader.SetBuffer(shader.FindKernel("Update"), "particles", particlesBuffer);
+        shader.Dispatch(shader.FindKernel("Update"), particles.Length, 1, 1);
+
+        isParticlesFinished = true;
+    }
 }
 
+[SerializeField]
 public struct particle {
-    Vector2 position;
+    public Vector2 position;
     public float headingAngle;
-}
-
-public struct cell {
-    public float intensity;
 }
 

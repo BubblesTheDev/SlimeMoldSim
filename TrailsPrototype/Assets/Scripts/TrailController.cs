@@ -5,7 +5,7 @@ using UnityEngine;
 public class TrailController : MonoBehaviour
 {
 
-    public struct flyer
+    public struct particle
     {
         public Vector2 position;
         public float angle;
@@ -17,14 +17,14 @@ public class TrailController : MonoBehaviour
     [Range(180,1080)]
     public int textureHeight = 180;
 
-    public ComputeShader trailShader;
+    public ComputeShader shader;
     public RenderTexture render;
 
 
     [Space]
-    public int numOfFlyers = 200;
+    public int numParticles = 200;
     public float speed = 10;
-    public flyer[] flyers;
+    public particle[] particles;
     public float reductionSpeed;
 
 
@@ -41,7 +41,7 @@ public class TrailController : MonoBehaviour
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
-        trailShader.Dispatch(0, textureWidth, textureHeight , 1);
+        shader.Dispatch(0, textureWidth, textureHeight , 1);
         initalizeCompute();
 
         Graphics.Blit(render, destination);
@@ -58,37 +58,35 @@ public class TrailController : MonoBehaviour
 
     void initalizeCompute()
     {
-        trailShader.SetInt("width", textureWidth);
-        trailShader.SetInt("height", textureHeight);
-        trailShader.SetInt("numFlyers", numOfFlyers);
-        trailShader.SetFloat("flySpeed", speed);
-        trailShader.SetTexture(0, "Texture", render);
-        trailShader.SetFloat("deltaTime", Time.deltaTime);
-        trailShader.SetFloat("reduceSpeed", reductionSpeed);
+        shader.SetInt("width", textureWidth);
+        shader.SetInt("height", textureHeight);
+        shader.SetInt("numFlyers", numParticles);
+        shader.SetFloat("flySpeed", speed);
+        shader.SetTexture(0, "Texture", render);
+        shader.SetFloat("deltaTime", Time.deltaTime);
+        shader.SetFloat("reduceSpeed", reductionSpeed);
     }
 
     void createFlyers()
     {
-        flyers = new flyer[numOfFlyers];
-        for (int i = 0; i < numOfFlyers; i++)
+        particles = new particle[numParticles];
+        for (int i = 0; i < numParticles; i++)
         {
-            flyer temp = new flyer();
-            float angle = i * Mathf.PI * 2f / numOfFlyers;
+            particle temp = new particle();
+            float angle = i * Mathf.PI * 2f / numParticles;
             temp.position = new Vector2(Mathf.Cos(angle) * 5 + textureWidth / 2, Mathf.Sin(angle) * 5 + textureHeight / 2);
             temp.angle = Random.Range(0, 360);
-            flyers[i] = temp;
+            particles[i] = temp;
         }
 
         int vector3Size = sizeof(float) * 2;
         int angleSize = sizeof(float);
         int totalSize = vector3Size + angleSize;
 
-        ComputeBuffer flyersBuffer = new ComputeBuffer(flyers.Length, totalSize);
-        flyersBuffer.SetData(flyers);
+        ComputeBuffer particlesBuffer = new ComputeBuffer(particles.Length, totalSize);
+        particlesBuffer.SetData(particles);
 
-        trailShader.SetBuffer(0, "flyers", flyersBuffer);
-        trailShader.Dispatch(0, flyers.Length / 16, 1, 1);
+        shader.SetBuffer(0, "particles", particlesBuffer);
+        shader.Dispatch(0, particles.Length / 16, 1, 1);
     }
-
-    
 }
