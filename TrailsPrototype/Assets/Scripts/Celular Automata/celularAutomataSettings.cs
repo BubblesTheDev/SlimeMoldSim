@@ -8,6 +8,7 @@ public class celularAutomataSettings : MonoBehaviour
     public ComputeShader shader;
     public Color slimeColor = Color.blue;
     public ring[] rings;
+    public cell[,] cellGrid;
 
     [Space, Header("Graphic Information")]
     [Range(320, 1920)]
@@ -32,6 +33,10 @@ public class celularAutomataSettings : MonoBehaviour
         texture.enableRandomWrite = true;
         texture.Create();
     }
+
+    public void createGrid() {
+
+    }
 }
 
 [System.Serializable]
@@ -42,4 +47,10 @@ public struct ring {
     public float maxAlive;
     public float minDead;
     public float maxDead;
+}
+
+[System.Serializable]
+public struct cell {
+    Vector2 position;
+    float value;
 }

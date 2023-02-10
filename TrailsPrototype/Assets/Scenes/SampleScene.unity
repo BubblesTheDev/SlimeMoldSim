@@ -217,22 +217,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 519420028}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 721431d1e0dcb1f4887ff7175ccd8d55, type: 3}
+  m_Script: {fileID: 11500000, guid: 8efb4ea5bb5668140a9a0dca996c502e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shader: {fileID: 7200000, guid: 090729a7e4bf7a34eb7a32f21906adba, type: 3}
-  numParticles: 100
-  sensorDistance: 5
-  sensorAngle: 30
-  moveWeight: 1.5
-  turnWeight: 2
-  moveSpeed: 5
-  turnAngle: 15
-  pherimoneIntensity: 1
+  shader: {fileID: 7200000, guid: 6604d0a3beb23d94daccf48ab9328b2f, type: 3}
+  slimeColor: {r: 0, g: 0, b: 1, a: 1}
+  rings:
+  - minRadius: 0
+    maxRadius: 0
+    minAlive: 0
+    maxAlive: 0
+    minDead: 0
+    maxDead: 0
+  - minRadius: 0
+    maxRadius: 0
+    minAlive: 0
+    maxAlive: 0
+    minDead: 0
+    maxDead: 0
+  - minRadius: 0
+    maxRadius: 0
+    minAlive: 0
+    maxAlive: 0
+    minDead: 0
+    maxDead: 0
   width: 320
   height: 180
-  slimeColor: {r: 1, g: 1, b: 1, a: 1}
-  decayRate: 3
-  diffuseSpeed: 1
   texture: {fileID: 0}
-  diffusedTexture: {fileID: 0}
