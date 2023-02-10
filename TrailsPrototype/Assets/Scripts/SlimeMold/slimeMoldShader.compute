@@ -10,7 +10,8 @@ struct particle {
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
-RWTexture2D<float4> Shader;
+RWTexture2D<float4> shader;
+RWTexture2D<float4> diffusedShader;
 RWStructuredBuffer<particle> particles;
 
 float screenWidth;
@@ -64,19 +65,5 @@ void Update(uint3 id : SV_DispatchThreadID)
 	}
 
 	particles[id.x].position = newPos;
-	Shader[int2(newPos.x, newPos.y)] = 1;
-}
-
-#pragma kernel diffuse
-
-RWTexture2D<float4> diffusedShader
-
-[numthreads(8,8,1)]
-void diffuse(uint3 id : SV_DispatchThreadID) {
-	if (id.x < 0 || id.y < 0 || id.x >= screenWidth || id.y >= screenHeight) { return; }
-
-	float4 originalValue = shader[id.xy];
-	float4 diffusedValue = max(0, originalValue - diffuseSpeed * deltaTime);
-
-	diffusedShader[id.xy] = diffusedValue;
+	shader[int2(newPos.x, newPos.y)] = 1;
 }
