@@ -222,25 +222,47 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shader: {fileID: 7200000, guid: 6604d0a3beb23d94daccf48ab9328b2f, type: 3}
   slimeColor: {r: 0, g: 0, b: 1, a: 1}
-  rings:
-  - minRadius: 0
-    maxRadius: 0
-    minAlive: 0
-    maxAlive: 0
-    minDead: 0
-    maxDead: 0
-  - minRadius: 0
-    maxRadius: 0
-    minAlive: 0
-    maxAlive: 0
-    minDead: 0
-    maxDead: 0
-  - minRadius: 0
-    maxRadius: 0
-    minAlive: 0
-    maxAlive: 0
-    minDead: 0
-    maxDead: 0
   width: 320
   height: 180
-  texture: {fileID: 0}
+  texture: {fileID: 2136261206}
+  lessThanToKill: 3
+  greaterThanToKill: 6
+  cutoffThreshold: 0.5
+  rangeToCheckCells: 1
+--- !u!84 &2136261206
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 5
+  m_Width: 320
+  m_Height: 180
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthStencilFormat: 90
+  m_ColorFormat: 8
+  m_MipMap: 0
+  m_GenerateMips: 1
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+  m_ShadowSamplingMode: 2

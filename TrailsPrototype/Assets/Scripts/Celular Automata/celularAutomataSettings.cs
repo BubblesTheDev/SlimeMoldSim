@@ -7,8 +7,6 @@ public class celularAutomataSettings : MonoBehaviour
     [Header("Settings")]
     public ComputeShader shader;
     public Color slimeColor = Color.blue;
-    public ring[] rings;
-    public cell[,] cellGrid;
 
     [Space, Header("Graphic Information")]
     [Range(320, 1920)]
@@ -16,16 +14,25 @@ public class celularAutomataSettings : MonoBehaviour
     [Range(180,1080)]
     public int height = 180;
     [SerializeField] RenderTexture texture;
+    public int lessThanToKill, greaterThanToKill;
+    [Range(0.01f,0.99f)]
+    public float cutoffThreshold;
+    public int rangeToCheckCells;
 
     private void Awake() {
-        setupTexture();
+        initialization();
     }
 
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination) {
-        shader.SetTexture(0, "texture", texture);
+        shader.Dispatch(shader.FindKernel("automataUpdate"), width / 16, height, 1);
 
-        Graphics.Blit(source, texture);
+        Graphics.Blit(texture, destination);
+    }
+
+    void initialization() {
+        setupTexture();
+        loadVariables();
     }
 
     public void setupTexture() {
@@ -34,23 +41,22 @@ public class celularAutomataSettings : MonoBehaviour
         texture.Create();
     }
 
-    public void createGrid() {
+    void loadVariables() {
+        shader.SetTexture(shader.FindKernel("automataUpdate"), "finalLayer", texture);
+
+        shader.SetFloat("width", width);
+        shader.SetFloat("height", height);
+        shader.SetFloat("cutoffThreshold", cutoffThreshold);
+        shader.SetInt("lessThanToKill", lessThanToKill);
+        shader.SetFloat("greaterThanToKill", greaterThanToKill);
 
     }
-}
 
-[System.Serializable]
-public struct ring {
-    public float minRadius;
-    public float maxRadius;
-    public float minAlive;
-    public float maxAlive;
-    public float minDead;
-    public float maxDead;
-}
+    void initShader() {
 
-[System.Serializable]
-public struct cell {
-    Vector2 position;
-    float value;
+    }
+
+    private void OnValidate() {
+        initialization();
+    }
 }

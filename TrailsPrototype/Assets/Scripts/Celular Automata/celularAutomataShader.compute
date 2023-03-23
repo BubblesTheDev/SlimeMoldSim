@@ -1,14 +1,57 @@
 // Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel CSMain
+#pragma kernel automataUpdate
+#pragma kernel automataInit
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
-RWTexture2D<float4> Result;
 
-[numthreads(8,8,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
+RWTexture2D<float4> initialLayer;
+RWTexture2D<float4> finalLayer;
+RWStructuredBuffer<float3> aliveColor;
+float width;
+float height;
+float cutoffThreshold;
+
+
+uint lessThanToKill;
+uint greatherThanToKill;
+
+
+// Hash function www.cs.ubc.ca/~rbridson/docs/schechter-sca08-turbulence.pdf
+uint hash(uint state)
 {
-    // TODO: insert actual code here!
-
-    Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+	state ^= 2747636419u;
+	state *= 2654435769u;
+	state ^= state >> 16;
+	state *= 2654435769u;
+	state ^= state >> 16;
+	state *= 2654435769u;
+	return state;
 }
+
+bool isAlive(uint2 pixelIndex) {
+
+}
+
+[numthreads(1,1,1)]
+void automataInit(uint2 id : SV_DispatchThreadID) 
+{
+	//Exit if the current htread is outside the texture height and width
+	if (id.x < 0 || id.x >= width || id.y < 0 || id.y >= height) { return; }
+
+
+	int pixelIndex = id.y * width + id.x;
+	uint psuedoRandomNumber = hash(pixelIndex);
+	float colorToGive;
+
+
+	if (psuedoRandomNumber / 4294967295.0 <= cutoffThreshold) colorToGive = 0;
+	else colorToGive = 1;
+
+	finalLayer[id.xy] = colorToGive;
+}
+
+[numthreads(16,1,1)]
+void automataUpdate(uint2 id : SV_DispatchThreadID)
+{
+	
+}
+
