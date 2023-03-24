@@ -28,7 +28,7 @@ uint hash(uint state)
 }
 
 bool isAlive(uint2 pixelIndex) {
-
+	
 }
 
 [numthreads(1,1,1)]
@@ -47,11 +47,20 @@ void automataInit(uint2 id : SV_DispatchThreadID)
 	else colorToGive = 1;
 
 	finalLayer[id.xy] = colorToGive;
+	
 }
 
 [numthreads(16,1,1)]
 void automataUpdate(uint2 id : SV_DispatchThreadID)
 {
-	
+
+
+	for (uint x = 0; x < length; x++)
+	{
+		for (uint y = 0; y < length; y++)
+		{
+
+		}
+	}
 }
 
